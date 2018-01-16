@@ -11,15 +11,12 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.application.Application;
-import javafx.scene.Group;
 import javafx.scene.Scene;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.input.KeyCode;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Shape;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 /**
  *
@@ -90,37 +87,20 @@ public class PongFX extends Application {
          }
         });
         
-        //Game Over
-               /*
-                Group rootGameOver = new Group();
-                Scene sceneGameOver = new Scene( root );
-                primaryStage.setScene( sceneGameOver );
-
-                Canvas canvas = new Canvas( 400, 200 );
-                rootGameOver.getChildren().add( canvas );
-
-                GraphicsContext gc = canvas.getGraphicsContext2D();
-
-                gc.setFill( Color.RED );
-                gc.setStroke( Color.BLACK );
-                gc.setLineWidth(2);
-                Font theFont = Font.font( "Times New Roman", FontWeight.BOLD, 48 );
-                gc.setFont( theFont );
-                gc.fillText( "Gana el Jugador 1", 60, 50 );
-                gc.strokeText( "Gana el Jugador 1", 60, 50 );
-
-                   */
-               
-            
-                if (pelota.getTranslateY()< 600){
-                primaryStage.show();
-                }
-            
+        //BOTON RESTART
+        Button botonRestart = new Button("Restart");
+        botonRestart.setLayoutX(200);
+        botonRestart.setLayoutY(375);
+        root.getChildren().add(botonRestart);
+        botonRestart.setDefaultButton(true);
+        botonRestart.setContentDisplay(ContentDisplay.TOP);
+        botonRestart.setOnAction(event -> { 
+            pelota.setTranslateX(300);
+            pelota.setTranslateY(200);
+            velocidadPelotaY = 2;
+            velocidadPelotaX = 2;
+        });
         
-               
-
-        
-
         //Movimiento pelota
         AnimationTimer movimientoPelota = new AnimationTimer() {
 
