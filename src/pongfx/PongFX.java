@@ -15,6 +15,9 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.input.KeyCode;
+import static javafx.scene.input.KeyCode.DOWN;
+import static javafx.scene.input.KeyCode.UP;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Shape;
 import javafx.stage.Stage;
@@ -24,14 +27,17 @@ import javafx.stage.Stage;
  */
 public class PongFX extends Application {
     // PANEL
-    public static final double anchoPanel = 590;
-    public static final double altoPanel = 360;
+    final int sceneTamañoX = 600;
+    final int sceneTamañoY = 400;
     //VELOCIDAD
     public static double velocidadPelotaX = 2;
     public static double velocidadPelotaY = 2;
+    int velocidadBarra = 0;
+    int velocidadBarra2= 0;
     
     //Movimiento
     public static double movimientoYbarra = 200;
+    public static double movimientoYbarraY = 0;
     public static double movimientoYbarra2 = 200;
     public static double posBarraX = 15;
     
@@ -39,18 +45,18 @@ public class PongFX extends Application {
     
     
     //Rectangulo
-    private int xRectangulo = 0;
-    private int yRectangulo = 0;
-    private int anchoRectangulo = 15;
-    private int anchoRectangulo2 = 15;
-    private int altoRectangulo2 = 60;
-    private int altoRectangulo = 60; 
-    private int altoScene = 600;
+    final int anchoRectangulo = 7;
+    final int anchoRectangulo2 = 7;
+    final int altoRectangulo = 50;
+    final int altoRectangulo2 = 50;
+    int barraPosY = (sceneTamañoY - altoRectangulo) / 2;
+    int barraPosY2 = (sceneTamañoY - altoRectangulo2) / 2;
+    
     @Override
     public void start(Stage primaryStage) {
         Pane root = new Pane();
         // Crear pantalla
-        Scene scene = new Scene (root, altoScene, 400, Color.WHITE);
+        Scene scene = new Scene (root, sceneTamañoX, sceneTamañoY, Color.WHITE);
         primaryStage.setTitle("PongFx");
         primaryStage.setScene(scene);
         primaryStage.show();
@@ -63,12 +69,64 @@ public class PongFX extends Application {
         Rectangle barra2 = new Rectangle (anchoRectangulo2, altoRectangulo2, Color.BLACK);
         root.getChildren().add(barra2);
         root.getChildren().add(barra);
-        barra.setTranslateX(1);
-        barra.setTranslateY(200);
+        barra.setTranslateX(50);
+        barra.setTranslateY(0);
         barra2.setTranslateX(585);
         barra2.setTranslateY(200);
        //Mover Barra
-        scene.setOnKeyPressed(e ->{
+        scene.setOnKeyPressed((KeyEvent event) -> {
+            switch(event.getCode()){
+                case W:
+                    velocidadBarra2 = -6;
+                    break;
+                case S:
+                    velocidadBarra2 = 6;
+                    break;
+                case UP:
+                    velocidadBarra= -6;
+                    break;
+                case DOWN:
+                    velocidadBarra= 6;
+                    break;
+            }
+           
+        });
+        // fix el bug de dos jugadores de movimiento
+        scene.setOnKeyReleased((KeyEvent event) -> {
+            
+                if(event.getCode() == KeyCode.UP ||event.getCode() == KeyCode.DOWN ){
+                    velocidadBarra = 0;
+                }
+                if(event.getCode() == KeyCode.W ||event.getCode() == KeyCode.S ){
+                    velocidadBarra2 = 0;
+                }
+                     
+            
+        });
+        
+       
+       barraPosY += velocidadBarra;
+       if (barraPosY < 0) {
+           barraPosY = 0;
+       }  else {
+           if (barraPosY > sceneTamañoY - altoRectangulo){
+               barraPosY = sceneTamañoY - altoRectangulo;
+           }
+       }
+       barra.setY(barraPosY);
+       
+       // barra2
+       
+       barraPosY2 += velocidadBarra2;
+       if (barraPosY2 < 0) {
+           barraPosY2 = 0;
+       }  else {
+           if (barraPosY2 > sceneTamañoY - altoRectangulo2){
+               barraPosY2 = sceneTamañoY - altoRectangulo2;
+           }
+       }
+       barra2.setY(barraPosY2);
+       /* scene.setOnKeyPressed(e ->{
          if(e.getCode() == KeyCode.S){
              movimientoYbarra  = movimientoYbarra + 30;
              barra.setTranslateY(movimientoYbarra);
@@ -86,6 +144,7 @@ public class PongFX extends Application {
              barra2.setTranslateY(movimientoYbarra2);
          }
         });
+       */
         
         //BOTON RESTART
         Button botonRestart = new Button("Restart");
@@ -102,10 +161,13 @@ public class PongFX extends Application {
         });
         
         //Movimiento pelota
-        AnimationTimer movimientoPelota = new AnimationTimer() {
-
-        
+        AnimationTimer movimientoPelota = new AnimationTimer() {       
              public void handle(long now) {
+                barraPosY += velocidadBarra;
+                barra.setY(barraPosY);
+                //Barra 2
+                barraPosY2 += velocidadBarra2;
+                barra2.setY(barraPosY2);
                 Shape colisionPelotaBarra = Shape.intersect(pelota, barra);
                 boolean colisionVacia = colisionPelotaBarra.getBoundsInLocal().isEmpty();
                 Shape colisionPelotaBarra2 = Shape.intersect(pelota, barra2);
@@ -117,7 +179,7 @@ public class PongFX extends Application {
                 }  
                  pelota.setTranslateX(pelota.getTranslateX() + velocidadPelotaX);
                  
-                 if(pelota.getTranslateY() < -20 || pelota.getTranslateY() > altoPanel) {
+                 if(pelota.getTranslateY() < -20 || pelota.getTranslateY() > 370) {
                     velocidadPelotaY  *= -1 - 0.05;
                     System.out.println("Velocidad Y: " + velocidadPelotaY);
                 }
